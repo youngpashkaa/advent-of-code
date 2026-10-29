@@ -6,17 +6,17 @@ const input = fs.readFileSync(path.join(__dirname, "./input.txt")).toString();
 const lines = input.split("\n").filter((line) => line !== "");
 
 // Part one
-function isRollAccessable({ x, y }: { x: number; y: number }) {
+function isRollAccessable({ x, y }: { x: number; y: number }, arr: string[]) {
 	// Check if there's a roll of paper
-	if (lines[y][x] !== "@") return false;
+	if (arr[y][x] !== "@") return false;
 
 	let countRolls = 0;
 
 	for (let yc = y - 1; yc <= y + 1; yc++) {
-		if (yc < 0 || yc === lines.length) continue;
+		if (yc < 0 || yc === arr.length) continue;
 
 		for (let xc = x - 1; xc <= x + 1; xc++) {
-			if (lines[yc][xc] === "@") {
+			if (arr[yc][xc] === "@") {
 				countRolls++;
 			}
 		}
@@ -28,18 +28,32 @@ function isRollAccessable({ x, y }: { x: number; y: number }) {
 function countAcceptableRolls() {
 	let res = 0;
 
-	for (let y = 0; y < lines.length; y++) {
-		for (let x = 0; x < lines.length; x++) {
-			const isAcceptable = isRollAccessable({ x, y });
-			if (isAcceptable) res++;
+	let l = lines.concat();
+	let nextL = lines.concat();
+
+	do {
+		l = nextL.concat();
+
+		for (let y = 0; y < l.length; y++) {
+			for (let x = 0; x < l.length; x++) {
+				const isAcceptable = isRollAccessable({ x, y }, l);
+				if (isAcceptable) {
+					const newLine =
+						nextL[y].substring(0, x) + "X" + nextL[y].substring(x + 1);
+
+					nextL[y] = newLine;
+					res++;
+				}
+			}
 		}
-	}
+
+		console.count();
+	} while (JSON.stringify(l) !== JSON.stringify(nextL));
 
 	return res;
 }
 
 console.log("Part one.");
-console.log(countAcceptableRolls());
 
 console.log("Part two.");
-// Solve function execution
+console.log(countAcceptableRolls());
